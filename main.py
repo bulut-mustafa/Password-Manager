@@ -2,7 +2,7 @@ import tkinter
 from tkinter import messagebox
 import random
 import pyperclip
- 
+import json
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 #Password Generator Project
 
@@ -45,7 +45,12 @@ def add_button():
     website = website_entry.get()
     email = email_entry.get()
     password = password_entry.get()
-    
+    new_data = {
+        website: {
+            "email":email,
+            "password":password
+        }
+    }
     
     #checks if the user left any field empty
     if len(website) == 0 or len(email) == 0 or len(password) == 0:
@@ -57,14 +62,26 @@ def add_button():
         
         #if yes saves the informations, if not doesn't do anything
         if answer:
-            f = open("data.txt", "a")
-            f.write(f"{website} | {email} | {password} \n")
-            website_entry.delete(0, tkinter.END)
-            email_entry.delete(0, tkinter.END)
-            password_entry.delete(0, tkinter.END)
-            website_entry.focus()
-            f.close()
-    
+            try:
+                with open("data.json", "r") as data_file:
+                    try:
+                        data = json.load(data_file)
+                    except json.decoder.JSONDecodeError:
+                        data = {}
+            except FileNotFoundError:
+                with open("data.json", "w") as data_file:
+                    json.dump(new_data, data_file, indent=4)
+            else:
+                data.update(new_data)
+                with open("data.json" , "w") as data_file:
+                    json.dump(data, data_file, indent=4)
+            finally:
+                website_entry.delete(0, tkinter.END)
+                email_entry.delete(0, tkinter.END)
+                password_entry.delete(0, tkinter.END)
+                website_entry.focus()
+                
+        
 
 
 # ---------------------------- UI SETUP ------------------------------- #
