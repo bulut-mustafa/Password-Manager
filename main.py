@@ -63,15 +63,18 @@ def add_button():
         #if yes saves the informations, if not doesn't do anything
         if answer:
             try:
+                #reads the information from an existing json file
                 with open("data.json", "r") as data_file:
                     try:
                         data = json.load(data_file)
                     except json.decoder.JSONDecodeError:
                         data = {}
             except FileNotFoundError:
+                # if the file is not created yet, it creates one and saves the given information
                 with open("data.json", "w") as data_file:
                     json.dump(new_data, data_file, indent=4)
             else:
+                # if the file is found, updates with the new informations
                 data.update(new_data)
                 with open("data.json" , "w") as data_file:
                     json.dump(data, data_file, indent=4)
@@ -80,9 +83,27 @@ def add_button():
                 email_entry.delete(0, tkinter.END)
                 password_entry.delete(0, tkinter.END)
                 website_entry.focus()
-                
-        
+            
+# ------------------------ SEARCH FROM DATA --------------------------- #
 
+# searchs in the data file for the website name and gets the informations
+def search():
+    website = website_entry.get()
+    #to catch an error to inform user if the file is not created
+    try:
+        with open("data.json", "r") as data_file:
+            data = json.load(data_file)
+    except:
+        messagebox.showerror(title="Error", message="No data file exist")
+    else:
+        # to check an error if the website is not found in the data
+        try:
+            email = data[website]["email"]
+            password = data[website]["password"]
+            messagebox.showinfo(title=website, message=f"Email: {email}\n Password: {password}")
+        except KeyError:
+            messagebox.showerror(message="No save found with this website.")
+            
 
 # ---------------------------- UI SETUP ------------------------------- #
 
@@ -115,8 +136,8 @@ password_entry = tkinter.Entry(width=18)
 password_entry.grid(column=1,row=3)
 
 #website entry
-website_entry = tkinter.Entry(width=35)
-website_entry.grid(column=1, row=1, columnspan=2)
+website_entry = tkinter.Entry(width=18)
+website_entry.grid(column=1, row=1)
 
 #email entry
 email_entry = tkinter.Entry(width=35)
@@ -128,6 +149,10 @@ generater_button.grid(column=2, row=3)
 
 add_button = tkinter.Button(text="Add", width=33, command=add_button)
 add_button.grid(column=1, row=4,columnspan=2)
+
+search_button = tkinter.Button(text="Search", width=13, command=search)
+search_button.grid(column=2,row=1)
+
 
 website_entry.focus()
 
